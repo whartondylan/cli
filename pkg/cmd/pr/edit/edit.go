@@ -228,6 +228,7 @@ func editRun(opts *EditOptions) error {
 	if pr.AssignedActorsUsed {
 		editable.Assignees.ActorAssignees = true
 		editable.Assignees.Default = pr.AssignedActors.DisplayNames()
+		editable.Assignees.DefaultLogins = pr.AssignedActors.Logins()
 	} else {
 		editable.Assignees.Default = pr.Assignees.Logins()
 	}
