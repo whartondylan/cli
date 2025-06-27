@@ -234,6 +234,11 @@ func (fwd *CodespacesPortForwarder) ListPorts(ctx context.Context) (ports []*tun
 
 // UpdatePortVisibility changes the visibility (private, org, public) of the specified port.
 func (fwd *CodespacesPortForwarder) UpdatePortVisibility(ctx context.Context, remotePort int, visibility string) error {
+	// Check if the remotePort is within the valid range for uint16
+	if remotePort < 0 || remotePort > 65535 {
+		return fmt.Errorf("invalid port number: %d (must be between 0 and 65535)", remotePort)
+	}
+
 	tunnelPort, err := fwd.connection.TunnelManager.GetTunnelPort(ctx, fwd.connection.Tunnel, remotePort, fwd.connection.Options)
 	if err != nil {
 		return fmt.Errorf("error getting tunnel port: %w", err)
