@@ -199,15 +199,15 @@ func NewCmdApi(f *cmdutil.Factory, runF func(*ApiOptions) error) *cobra.Command 
 			[.[].data.viewer.repositories.nodes[]] as $r | count(select($r[].isFork))/count($r[])'
 		`),
 		Annotations: map[string]string{
-			"help:environment": heredoc.Doc(`
+			"help:environment": heredoc.Docf(`
 				GH_TOKEN, GITHUB_TOKEN (in order of precedence): an authentication token for
-				<github.com> API requests.
+				%[1]sgithub.com%[1]s API requests.
 
 				GH_ENTERPRISE_TOKEN, GITHUB_ENTERPRISE_TOKEN (in order of precedence): an
 				authentication token for API requests to GitHub Enterprise.
 
-				GH_HOST: make the request to a GitHub host other than <github.com>.
-			`),
+				GH_HOST: make the request to a GitHub host other than %[1]sgithub.com%[1]s.
+			`, "`"),
 		},
 		Args: cobra.ExactArgs(1),
 		PreRun: func(c *cobra.Command, args []string) {

@@ -118,7 +118,7 @@ func (e Editable) AssigneeIds(client *api.Client, repo ghrepo.Interface) (*[]str
 	// curate the final list of assignees from the default list.
 	if len(e.Assignees.Add) != 0 || len(e.Assignees.Remove) != 0 {
 		meReplacer := NewMeReplacer(client, repo.RepoHost())
-		copilotReplacer := NewCopilotReplacer()
+		copilotReplacer := NewCopilotReplacer(true)
 
 		replaceSpecialAssigneeNames := func(value []string) ([]string, error) {
 			replaced, err := meReplacer.ReplaceSlice(value)

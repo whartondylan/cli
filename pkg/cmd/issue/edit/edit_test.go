@@ -263,12 +263,12 @@ func TestNewCmdEdit(t *testing.T) {
 		},
 		{
 			name:  "argument is a URL",
-			input: "https://github.com/cli/cli/issues/23",
+			input: "https://example.com/cli/cli/issues/23",
 			output: EditOptions{
 				IssueNumbers: []int{23},
 				Interactive:  true,
 			},
-			expectedBaseRepo: ghrepo.New("cli", "cli"),
+			expectedBaseRepo: ghrepo.NewWithHost("cli", "cli", "example.com"),
 			wantsErr:         false,
 		},
 		{

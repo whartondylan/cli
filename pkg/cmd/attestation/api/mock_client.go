@@ -6,6 +6,13 @@ import (
 	"github.com/cli/cli/v2/pkg/cmd/attestation/test/data"
 )
 
+func makeTestReleaseAttestation() Attestation {
+	return Attestation{
+		Bundle:    data.GitHubReleaseBundle(nil),
+		BundleURL: "https://example.com",
+	}
+}
+
 func makeTestAttestation() Attestation {
 	return Attestation{Bundle: data.SigstoreBundle(nil), BundleURL: "https://example.com"}
 }
@@ -26,8 +33,12 @@ func (m MockClient) GetTrustDomain() (string, error) {
 func OnGetByDigestSuccess(params FetchParams) ([]*Attestation, error) {
 	att1 := makeTestAttestation()
 	att2 := makeTestAttestation()
+	att3 := makeTestReleaseAttestation()
 	attestations := []*Attestation{&att1, &att2}
 	if params.PredicateType != "" {
+		if params.PredicateType == "https://in-toto.io/attestation/release/v0.1" {
+			attestations = append(attestations, &att3)
+		}
 		return FilterAttestations(params.PredicateType, attestations)
 	}
 
