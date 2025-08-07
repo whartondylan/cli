@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"html"
 	"os"
 	"path"
 	"regexp"
@@ -31,7 +32,7 @@ func (srv *aiaTestSrv) handleIssuer(w http.ResponseWriter, r *http.Request) {
 	issuer, ok := srv.issuersByName[issuerName]
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(fmt.Sprintf("issuer %q not found", issuerName)))
+		w.Write([]byte(fmt.Sprintf("issuer %q not found", html.EscapeString(issuerName))))
 		return
 	}
 
