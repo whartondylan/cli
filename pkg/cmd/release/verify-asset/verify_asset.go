@@ -24,6 +24,7 @@ type VerifyAssetOptions struct {
 	BaseRepo      ghrepo.Interface
 	Exporter      cmdutil.Exporter
 	AssetFilePath string
+	TrustedRoot   string
 }
 
 type VerifyAssetConfig struct {
@@ -93,9 +94,10 @@ func NewCmdVerifyAsset(f *cmdutil.Factory, runF func(*VerifyAssetConfig) error) 
 			attClient := api.NewLiveClient(httpClient, baseRepo.RepoHost(), att_io.NewHandler(io))
 
 			attVerifier := &shared.AttestationVerifier{
-				AttClient:  attClient,
-				HttpClient: httpClient,
-				IO:         io,
+				AttClient:   attClient,
+				HttpClient:  httpClient,
+				IO:          io,
+				TrustedRoot: opts.TrustedRoot,
 			}
 
 			config := &VerifyAssetConfig{
@@ -114,6 +116,8 @@ func NewCmdVerifyAsset(f *cmdutil.Factory, runF func(*VerifyAssetConfig) error) 
 		},
 	}
 	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
+	cmd.Flags().StringVarP(&opts.TrustedRoot, "custom-trusted-root", "", "", "Path to a trusted_root.jsonl file; likely for offline verification.")
+	cmd.Flags().MarkHidden("custom-trusted-root")
 
 	return cmd
 }
