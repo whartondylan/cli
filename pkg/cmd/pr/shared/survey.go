@@ -181,6 +181,7 @@ func MetadataSurvey(p Prompt, io *iostreams.IOStreams, baseRepo ghrepo.Interface
 	// Retrieve and process data for survey prompts based on the extra fields selected
 	metadataInput := api.RepoMetadataInput{
 		Reviewers:      isChosen("Reviewers"),
+		TeamReviewers:  isChosen("Reviewers"),
 		Assignees:      isChosen("Assignees"),
 		ActorAssignees: isChosen("Assignees") && state.ActorAssignees,
 		Labels:         isChosen("Labels"),

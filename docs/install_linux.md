@@ -1,17 +1,18 @@
 # Installing gh on Linux and BSD
 
-Packages downloaded from https://cli.github.com or from https://github.com/cli/cli/releases
-are considered official binaries. We focus on popular Linux distros and
-the following CPU architectures: `i386`, `amd64`, `arm64`, `armhf`.
+## Recommended _(Official)_
 
-Other sources for installation are community-maintained and thus might lag behind
-our release schedule.
+### Debian
 
-## Official sources
+Debian packages are hosted on the [GitHub CLI marketing site](https://cli.github.com/) for various operating systems including:
 
-### Debian, Ubuntu Linux, Raspberry Pi OS (apt)
+- [Debian](https://www.debian.org/)
+- [Raspberry Pi](https://www.raspberrypi.com/)
+- [Ubuntu Linux](https://ubuntu.com/)
 
-Install:
+These packages are supported by the GitHub CLI maintainers with updates powered by [GitHub CLI deployment workflow](https://github.com/cli/cli/actions/workflows/deployment.yml).
+
+To install:
 
 ```bash
 (type -p wget >/dev/null || (sudo apt update && sudo apt install wget -y)) \
@@ -25,30 +26,43 @@ Install:
 	&& sudo apt install gh -y
 ```
 
-Upgrade:
+To upgrade:
 
 ```bash
 sudo apt update
 sudo apt install gh
 ```
 
-> [!NOTE]
-> If errors regarding GPG signatures occur, see [cli/cli#9569](https://github.com/cli/cli/issues/9569) for steps to fix this.
+### RPM
 
-### Fedora, CentOS, Red Hat Enterprise Linux (DNF4 & DNF5)
+RPM packages are hosted on the [GitHub CLI marketing site](https://cli.github.com) for various operating systems including:
 
-Install from our package repository for immediate access to latest releases.
+- [Amazon Linux 2](https://aws.amazon.com/amazon-linux-2/)
+- [CentOS](https://www.centos.org/)
+- [Fedora](https://fedoraproject.org/)
+- [Red Hat Enterprise Linux](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux)
+- [openSUSE](https://www.opensuse.org/)
+- [SUSE](https://www.suse.com/)
+
+These packages are supported by the GitHub CLI maintainers with updates powered by [GitHub CLI deployment workflow](https://github.com/cli/cli/actions/workflows/deployment.yml).
 
 #### DNF5
 
 > [!IMPORTANT]
 > **These commands apply to DNF5 only**. If you're using DNF4, please use [the DNF4 instructions](#dnf4).
 
+To install:
+
 ```bash
-# DNF5 installation commands
 sudo dnf install dnf5-plugins
 sudo dnf config-manager addrepo --from-repofile=https://cli.github.com/packages/rpm/gh-cli.repo
 sudo dnf install gh --repo gh-cli
+```
+
+To upgrade:
+
+```bash
+sudo dnf update gh
 ```
 
 #### DNF4
@@ -56,33 +70,23 @@ sudo dnf install gh --repo gh-cli
 > [!IMPORTANT]
 > **These commands apply to DNF4 only**. If you're using DNF5, please use [the DNF5 instructions](#dnf5).
 
+To install:
+
 ```bash
-# DNF4 installation commands
 sudo dnf install 'dnf-command(config-manager)'
 sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
 sudo dnf install gh --repo gh-cli
 ```
 
-> [!NOTE]
-> If errors regarding GPG signatures occur, see [cli/cli#9569](https://github.com/cli/cli/issues/9569) for steps to fix this.
-
-### Fedora, CentOS, Red Hat Enterprise Linux - Community repository
-
-Alternatively, install from the [community repository](https://packages.fedoraproject.org/pkgs/gh/gh/):
-
-```bash
-sudo dnf install gh
-```
-
-Upgrade:
+To upgrade:
 
 ```bash
 sudo dnf update gh
 ```
 
-### Amazon Linux 2 (yum)
+#### Amazon Linux 2 (yum)
 
-Install using our package repository for immediate access to latest releases:
+To install:
 
 ```bash
 type -p yum-config-manager >/dev/null || sudo yum install yum-utils
@@ -90,18 +94,15 @@ sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.re
 sudo yum install gh
 ```
 
-Upgrade:
+To upgrade:
 
 ```bash
 sudo yum update gh
 ```
 
-> [!NOTE]
-> If errors regarding GPG signatures occur, see [cli/cli#9569](https://github.com/cli/cli/issues/9569) for steps to fix this.
+#### openSUSE/SUSE Linux (zypper)
 
-### openSUSE/SUSE Linux (zypper)
-
-Install:
+To install:
 
 ```bash
 sudo zypper addrepo https://cli.github.com/packages/rpm/gh-cli.repo
@@ -109,50 +110,140 @@ sudo zypper ref
 sudo zypper install gh
 ```
 
-Upgrade:
+To upgrade:
 
 ```bash
 sudo zypper ref
 sudo zypper update gh
 ```
 
-> [!NOTE]
-> If errors regarding GPG signatures occur, see [cli/cli#9569](https://github.com/cli/cli/issues/9569) for steps to fix this.
+### Homebrew
 
-## Manual installation
+[Homebrew](https://brew.sh/) is a free and open-source software package management system that simplifies the installation of software on Apple's operating system, macOS, as well as Linux.
 
-* [Download release binaries][releases page] that match your platform; or
-* [Build from source](./source.md).
+The [GitHub CLI formulae](https://formulae.brew.sh/formula/gh) is supported by the GitHub CLI maintainers with help from our friends at Homebrew with updated powered by [homebrew/hoomebrew-core](https://github.com/Homebrew/homebrew-core/blob/main/Formula/g/gh.rb).
 
-## Unofficial, community-supported methods
+To install:
 
-The GitHub CLI team does not maintain the following packages or repositories and thus we are unable to provide support for those installation methods.
-
-### Snap (do not use)
-
-There are [so many issues with Snap](https://github.com/casperdcl/cli/issues/7) as a runtime mechanism for apps like GitHub CLI that our team suggests _never installing gh as a snap_.
-
-### Arch Linux
-
-Arch Linux users can install from the [extra repo][arch linux repo]:
-
-```bash
-sudo pacman -S github-cli
+```shell
+brew install gh
 ```
 
-Alternatively, use the [unofficial AUR package][arch linux aur] to build GitHub CLI from source.
+To upgrade:
+
+```shell
+brew upgrade gh
+```
+
+### Precompiled binaries
+
+[GitHub CLI releases](https://github.com/cli/cli/releases/latest) contain precompiled binaries for `386`, `amd64`, `arm64`, and `armv6` architectures.
+
+## Community _(Unofficial)_
+
+> [!IMPORTANT]
+> The GitHub CLI team does not maintain the following packages or repositories. We are unable to provide support for these installation methods or any guarantees of stability, security, or availability for these installation methods.
+
+### Alpine Linux
+
+The [GitHub CLI package](https://pkgs.alpinelinux.org/package/edge/community/x86_64/github-cli) is supported by the Alpine Linux community with updates powered by [alpine/aports](https://gitlab.alpinelinux.org/alpine/aports/-/tree/master/community/github-cli).
+
+To install stable release:
+
+```bash
+apk add github-cli
+```
+
+To install edge release:
+
+```bash
+echo "@community http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+apk add github-cli@community
+```
 
 ### Android
 
-Android 7+ users can install via [Termux](https://wiki.termux.com/wiki/Main_Page):
+The [GitHub CLI package](https://packages.termux.dev/apt/termux-main/pool/main/g/gh/) is supported by the Termux community with updates powered by [termux/termux-packages](https://github.com/termux/termux-packages/tree/master/packages/gh).
+
+To install and upgrade:
 
 ```bash
 pkg install gh
 ```
 
+### Arch Linux
+
+The [GitHub CLI package](https://www.archlinux.org/packages/extra/x86_64/github-cli) is supported by the Arch Linux community with updates powered by [Arch Linux packaging](https://gitlab.archlinux.org/archlinux/packaging/packages/github-cli).
+
+To install:
+
+```bash
+sudo pacman -S github-cli
+```
+
+To upgrade all packages:
+
+```bash
+sudo pacman -Syu
+```
+
+Alternatively, use the [unofficial AUR package](https://aur.archlinux.org/packages/github-cli-git) to build GitHub CLI from source.
+
+### Conda
+
+[Conda](https://docs.conda.io/en/latest/) is an open source package management system and environment management system for installing multiple versions of software packages and their dependencies and switching easily between them. It works on Linux, OS X and Windows, and was created for Python programs but can package and distribute any software.
+
+The [GitHub CLI package](https://anaconda.org/conda-forge/gh) is supported by the Conda community with updates powered by [conda-forge/gh-feedstock](https://github.com/conda-forge/gh-feedstock#installing-gh).
+
+To install:
+
+```shell
+conda install gh --channel conda-forge
+```
+
+To upgrade:
+
+```shell
+conda update gh --channel conda-forge
+```
+
+### Fedora Community
+
+The [GitHub CLI package](https://packages.fedoraproject.org/pkgs/gh/gh/) is supported by the Fedora community with updates powered by [Fedora Project](https://src.fedoraproject.org/rpms/gh).
+
+To install:
+
+```bash
+sudo dnf install gh
+```
+
+To upgrade:
+
+```bash
+sudo dnf update gh
+```
+
+### Flox
+
+[Flox](https://flox.dev/) is a virtual environment and package manager all in one. With Flox you create environments that layer and replace dependencies just where it matters, making them portable across the full software lifecycle.
+
+Flox relies upon the [GitHub CLI package](https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/gh/gh/package.nix) supported by the [NixOS community](https://nixos.org/)
+
+To install:
+
+```shell
+flox install gh
+```
+
+To upgrade:
+
+```shell
+flox upgrade toplevel
+```
+
 ### FreeBSD
 
-FreeBSD users can install from the [ports collection](https://www.freshports.org/devel/gh/):
+The [GitHub CLI port](https://www.freshports.org/devel/gh/) is supported by the FreeBSD community with updates powered by [FreeBSD ports](https://cgit.freebsd.org/ports/tree/devel/gh).
 
 ```bash
 cd /usr/ports/devel/gh/ && make install clean
@@ -164,9 +255,55 @@ Or via [pkg(8)](https://www.freebsd.org/cgi/man.cgi?pkg(8)):
 pkg install gh
 ```
 
+### Funtoo
+
+The GitHub CLI portage is supported by the Funtoo community with updates powered by [funtoo/dev-kit](https://github.com/funtoo/dev-kit/tree/1.4-release/dev-util/github-cli).
+
+To install:
+
+```bash
+emerge -av github-cli
+```
+
+To upgrade:
+
+```bash
+ego sync
+emerge -u github-cli
+```
+
+### Gentoo
+
+The [GitHub CLI portage](https://packages.gentoo.org/packages/dev-util/github-cli) is supported by the Gentoo community with updates powered by [Gentoo portage](https://gitweb.gentoo.org/repo/gentoo.git/tree/dev-util/github-cli).
+
+To install:
+
+``` bash
+emerge -av github-cli
+```
+
+To upgrade:
+
+``` bash
+emerge --sync
+emerge -u github-cli
+```
+
+### Manjaro Linux
+
+The [GitHub CLI package](https://manjaristas.org/branch_compare?q=github-cli) is the same package produced by the [Arch Linux community](#arch-linux)
+
+To install and upgrade:
+
+```bash
+pamac install github-cli
+```
+
 ### MidnightBSD
 
-MidnightBSD users can install from [mports](https://www.midnightbsd.org/documentation/mports/index.html)
+The [GitHub CLI port](https://www.midnightbsd.org/mports/devel/gh/README.html) is supported by the MidnightBSD community with updates powered by [MidnightBSD/mports](https://github.com/MidnightBSD/mports/tree/master/devel/gh).
+
+To install:
 
 ```bash
 cd /usr/mports/devel/gh/ && make install clean
@@ -180,133 +317,111 @@ mport install gh
 
 ### NetBSD/pkgsrc
 
-NetBSD users and those on [platforms supported by pkgsrc](https://pkgsrc.org/#index4h1) can install the [gh package](https://pkgsrc.se/net/gh):
+The [GitHub CLI package](https://pkgsrc.se/net/gh) is supported by the NetBSD community with updates powered by [NetBSD/pkgsrc](https://github.com/NetBSD/pkgsrc/tree/trunk/net/gh).
+
+To install:
 
 ```bash
 pkgin install gh
 ```
 
-To install from source:
-
-```bash
-cd /usr/pkgsrc/net/gh && make package-install
-```
-
-### OpenBSD
-
-In -current, or in releases starting from 7.0, OpenBSD users can install from packages:
-
-```
-pkg_add github-cli
-```
-
-### Funtoo
-
-Funtoo Linux has an autogenerated github-cli package, located in [dev-kit](https://github.com/funtoo/dev-kit/tree/1.4-release/dev-util/github-cli), which can be installed in the following way:
-
-``` bash
-emerge -av github-cli
-```
-
-Upgrading can be done by syncing the repos and then requesting an upgrade:
-
-``` bash
-ego sync
-emerge -u github-cli
-```
-
-### Gentoo
-
-Gentoo Linux users can install from the [main portage tree](https://packages.gentoo.org/packages/dev-util/github-cli):
-
-``` bash
-emerge -av github-cli
-```
-
-Upgrading can be done by updating the portage tree and then requesting an upgrade:
-
-``` bash
-emerge --sync
-emerge -u github-cli
-```
-
-### Kiss Linux
-
-Kiss Linux users can install from the [community repos](https://github.com/kisslinux/community):
-
-```bash
-kiss b github-cli && kiss i github-cli
-```
-
 ### Nix/NixOS
 
-Nix/NixOS users can install from [nixpkgs](https://search.nixos.org/packages?query=gh&sort=relevance&show=gh):
+The [GitHub CLI package](https://search.nixos.org/packages?query=gh&sort=relevance&show=gh) is supported by the NixOS community with updates powered by [NixOS/nixpkgs](https://github.com/NixOS/nixpkgs/tree/master/pkgs/by-name/gh/gh).
+
+To install:
 
 ```bash
 nix-env -iA nixos.gh
 ```
 
-### Flox
+### OpenBSD
 
-Flox users can install from the [official community nixpkgs](https://github.com/flox/nixpkgs).
+The [GitHub CLI port](https://openports.pl/path/devel/github-cli) is supported by the OpenBSD community with updates powered by [OpenBSD ports](https://cvsweb.openbsd.org/ports/devel/github-cli/).
 
-```bash
-# To install
-flox install gh
+To install:
 
-# To upgrade
-flox upgrade toplevel
+```shell
+pkg_add github-cli
 ```
-
-For more information about Flox, see [its homepage](https://flox.dev).
 
 ### openSUSE Tumbleweed
 
-openSUSE Tumbleweed users can install from the [official distribution repo](https://software.opensuse.org/package/gh):
+The [GitHub CLI package](https://software.opensuse.org/package/gh) is supported by the openSUSE community.
+
+To install:
+
 ```bash
-sudo zypper in gh
+sudo zypper install gh
 ```
 
-### Alpine Linux
-
-Alpine Linux users can install from the [stable releases' community package repository](https://pkgs.alpinelinux.org/packages?name=github-cli&branch=v3.15).
+To upgrade:
 
 ```bash
-apk add github-cli
-```
-
-Users wanting the latest version of the CLI without waiting to be backported into the stable release they're using should use the edge release's
-community repo through this method below, without mixing packages from stable and unstable repos.[^1]
-
-```bash
-echo "@community http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
-apk add github-cli@community
-```
-
-### Void Linux
-Void Linux users can install from the [official distribution repo](https://voidlinux.org/packages/?arch=x86_64&q=github-cli):
-
-```bash
-sudo xbps-install github-cli
-```
-
-### Manjaro Linux
-Manjaro Linux users can install from the [official extra repository](https://manjaristas.org/branch_compare?q=github-cli):
-
-```bash
-pamac install github-cli
+sudo zypper update gh
 ```
 
 ### Solus Linux
-Solus Linux users can install using [eopkg package manager](https://help.getsol.us/docs/user/package-management/basics/):
+
+The GitHub CLI package is supported by the Solus Linux community with updates powered by [getsolus/packages](https://github.com/getsolus/packages/blob/main/packages/g/github-cli/).
+
+To install:
 
 ```bash
 sudo eopkg install github-cli
 ```
 
-For more information about the `github-cli` package, see [the package definition](https://github.com/getsolus/packages/blob/main/packages/g/github-cli/package.yml) in the `getsolus/packages` repository.
+### Spack
 
-[releases page]: https://github.com/cli/cli/releases/latest
-[arch linux repo]: https://www.archlinux.org/packages/extra/x86_64/github-cli
-[arch linux aur]: https://aur.archlinux.org/packages/github-cli-git
-[^1]: https://wiki.alpinelinux.org/wiki/Package_management#Repository_pinning
+[Spack](https://spack.io/) is a flexible package manager supporting multiple versions, configurations, platforms, and compilers for supercomputers, Linux, and macOS.
+
+The [GitHub CLI package](https://packages.spack.io/package.html?name=gh) is supported by the Spack community with updates powered by [spack/spack-packages](https://github.com/spack/spack-packages/tree/develop/repos/spack_repo/builtin/packages/gh).
+
+To install:
+
+```shell
+spack install gh
+```
+
+To upgrade:
+
+```shell
+spack uninstall gh && spack install gh
+```
+
+### Void Linux
+
+The [GitHub CLI package](https://voidlinux.org/packages/?arch=x86_64&q=github-cli): is supported by the Void Linux community with updates powered by [void-linux/void-packages](https://github.com/void-linux/void-packages/tree/master/srcpkgs/github-cli).
+
+To install:
+
+```bash
+sudo xbps-install github-cli
+```
+
+### Webi
+
+[Webi](https://webinstall.dev/) is a tool that aims to effortlessly install developer tools with easy-to-remember URLs from official builds quickly, without sudo or Admin, without a package manager, and without changing system file permissions.
+
+The [GitHub CLI package](https://webinstall.dev/gh/) is supported by the Webi community with updates powered by [webinstall/webi-installers](https://github.com/webinstall/webi-installers/tree/main/gh).
+
+To install:
+
+```shell
+curl -sS https://webi.sh/gh \| sh
+```
+
+To upgrade:
+
+```shell
+webi gh@stable
+```
+
+## Discouraged
+
+> [!WARNING]
+> The GitHub CLI team actively discourages use of the following methods of installation.
+
+### Snap
+
+The [GitHub CLI package](https://snapcraft.io/gh) has [so many issues with Snap](https://github.com/casperdcl/cli/issues/7) as a runtime mechanism for apps like GitHub CLI that our team suggests _never installing gh as a snap_.
