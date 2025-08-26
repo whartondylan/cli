@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/atotto/clipboard"
 	"github.com/cli/cli/v2/api"
 	"github.com/cli/cli/v2/internal/browser"
 	"github.com/cli/cli/v2/internal/ghinstance"
@@ -29,7 +30,7 @@ var (
 	jsonTypeRE = regexp.MustCompile(`[/+]json($|;)`)
 )
 
-func AuthFlow(oauthHost string, IO *iostreams.IOStreams, notice string, additionalScopes []string, isInteractive bool, b browser.Browser) (string, string, error) {
+func AuthFlow(oauthHost string, IO *iostreams.IOStreams, notice string, additionalScopes []string, isInteractive bool, b browser.Browser, isCopyToClipboard bool) (string, string, error) {
 	w := IO.ErrOut
 	cs := IO.ColorScheme()
 
@@ -55,6 +56,15 @@ func AuthFlow(oauthHost string, IO *iostreams.IOStreams, notice string, addition
 		CallbackURI:  getCallbackURI(oauthHost),
 		Scopes:       scopes,
 		DisplayCode: func(code, verificationURL string) error {
+			if isCopyToClipboard {
+				err := clipboard.WriteAll(code)
+				if err == nil {
+					fmt.Fprintf(w, "%s One-time code (%s) copied to clipboard\n", cs.Yellow("!"), cs.Bold(code))
+					return nil
+				}
+				fmt.Fprintf(w, "%s Failed to copy one-time code to clipboard\n", cs.Red("!"))
+				fmt.Fprintf(w, "  %s\n", err)
+			}
 			fmt.Fprintf(w, "%s First copy your one-time code: %s\n", cs.Yellow("!"), cs.Bold(code))
 			return nil
 		},
