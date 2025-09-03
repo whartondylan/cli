@@ -373,17 +373,69 @@ func TestRepositoryFeatures(t *testing.T) {
 }
 
 func TestProjectV1Support(t *testing.T) {
-	t.Parallel()
+	tests := []struct {
+		name         string
+		hostname     string
+		httpStubs    func(*httpmock.Registry)
+		wantFeatures gh.ProjectsV1Support
+	}{
+		{
+			name:         "github.com",
+			hostname:     "github.com",
+			wantFeatures: gh.ProjectsV1Unsupported,
+		},
+		{
+			name:         "ghec data residency (ghe.com)",
+			hostname:     "stampname.ghe.com",
+			wantFeatures: gh.ProjectsV1Unsupported,
+		},
+		{
+			name:     "GHE 3.16.0",
+			hostname: "git.my.org",
+			httpStubs: func(reg *httpmock.Registry) {
+				reg.Register(
+					httpmock.REST("GET", "api/v3/meta"),
+					httpmock.StringResponse(`{"installed_version":"3.16.0"}`),
+				)
+			},
+			wantFeatures: gh.ProjectsV1Supported,
+		},
+		{
+			name:     "GHE 3.16.1",
+			hostname: "git.my.org",
+			httpStubs: func(reg *httpmock.Registry) {
+				reg.Register(
+					httpmock.REST("GET", "api/v3/meta"),
+					httpmock.StringResponse(`{"installed_version":"3.16.1"}`),
+				)
+			},
+			wantFeatures: gh.ProjectsV1Supported,
+		},
+		{
+			name:     "GHE 3.17",
+			hostname: "git.my.org",
+			httpStubs: func(reg *httpmock.Registry) {
+				reg.Register(
+					httpmock.REST("GET", "api/v3/meta"),
+					httpmock.StringResponse(`{"installed_version":"3.17.0"}`),
+				)
+			},
+			wantFeatures: gh.ProjectsV1Unsupported,
+		},
+	}
 
-	t.Run("when the host is enterprise, project v1 is supported", func(t *testing.T) {
-		detector := detector{host: "my.ghes.com"}
-		isProjectV1Supported := detector.ProjectsV1()
-		require.Equal(t, gh.ProjectsV1Supported, isProjectV1Supported)
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			reg := &httpmock.Registry{}
+			if tt.httpStubs != nil {
+				tt.httpStubs(reg)
+			}
+			httpClient := &http.Client{}
+			httpmock.ReplaceTripper(httpClient, reg)
 
-	t.Run("when the host is not enterprise, project v1 is not supported", func(t *testing.T) {
-		detector := detector{host: "github.com"}
-		isProjectV1Supported := detector.ProjectsV1()
-		require.Equal(t, gh.ProjectsV1Unsupported, isProjectV1Supported)
-	})
+			detector := NewDetector(httpClient, tt.hostname)
+			require.Equal(t, tt.wantFeatures, detector.ProjectsV1())
+		})
+	}
 }
