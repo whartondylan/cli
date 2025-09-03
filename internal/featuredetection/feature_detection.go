@@ -5,6 +5,7 @@ import (
 
 	"github.com/cli/cli/v2/api"
 	"github.com/cli/cli/v2/internal/gh"
+	"github.com/hashicorp/go-version"
 	"golang.org/x/sync/errgroup"
 
 	ghauth "github.com/cli/go-gh/v2/pkg/auth"
@@ -205,12 +206,35 @@ func (d *detector) RepositoryFeatures() (RepositoryFeatures, error) {
 	return features, nil
 }
 
+const (
+	enterpriseProjectsV1Removed = "3.17.0"
+)
+
 func (d *detector) ProjectsV1() gh.ProjectsV1Support {
-	// Currently, projects v1 support is entirely dependent on the host. As this is deprecated in GHES,
-	// we will do feature detection on whether the GHES version has support.
-	if ghauth.IsEnterprise(d.host) {
+	if !ghauth.IsEnterprise(d.host) {
+		return gh.ProjectsV1Unsupported
+	}
+
+	hostVersion, hostVersionErr := resolveEnterpriseVersion(d.httpClient, d.host)
+	v1ProjectCutoffVersion, v1ProjectCutoffVersionErr := version.NewVersion(enterpriseProjectsV1Removed)
+
+	if hostVersionErr == nil && v1ProjectCutoffVersionErr == nil && hostVersion.LessThan(v1ProjectCutoffVersion) {
 		return gh.ProjectsV1Supported
 	}
 
 	return gh.ProjectsV1Unsupported
+}
+
+func resolveEnterpriseVersion(httpClient *http.Client, host string) (*version.Version, error) {
+	var metaResponse struct {
+		InstalledVersion string `json:"installed_version"`
+	}
+
+	apiClient := api.NewClientFromHTTP(httpClient)
+	err := apiClient.REST(host, "GET", "meta", nil, &metaResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return version.NewVersion(metaResponse.InstalledVersion)
 }

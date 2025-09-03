@@ -25,9 +25,10 @@ type Verifier interface {
 }
 
 type AttestationVerifier struct {
-	AttClient  api.Client
-	HttpClient *http.Client
-	IO         *iostreams.IOStreams
+	AttClient   api.Client
+	HttpClient  *http.Client
+	IO          *iostreams.IOStreams
+	TrustedRoot string
 }
 
 func (v *AttestationVerifier) VerifyAttestation(art *artifact.DigestedArtifact, att *api.Attestation) (*verification.AttestationProcessingResult, error) {
@@ -41,6 +42,7 @@ func (v *AttestationVerifier) VerifyAttestation(art *artifact.DigestedArtifact, 
 		Logger:       att_io.NewHandler(v.IO),
 		NoPublicGood: true,
 		TrustDomain:  td,
+		TrustedRoot:  v.TrustedRoot,
 	})
 	if err != nil {
 		return nil, err
