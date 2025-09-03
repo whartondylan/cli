@@ -124,6 +124,7 @@ func viewRun(opts *ViewOptions) error {
 			opts.Detector = fd.NewDetector(cachedClient, baseRepo.RepoHost())
 		}
 
+		lookupFields.Add("projectItems")
 		projectsV1Support := opts.Detector.ProjectsV1()
 		if projectsV1Support == gh.ProjectsV1Supported {
 			lookupFields.Add("projectCards")
@@ -310,11 +311,24 @@ func issueAssigneeList(issue api.Issue) string {
 }
 
 func issueProjectList(issue api.Issue) string {
-	if len(issue.ProjectCards.Nodes) == 0 {
+	totalCount := issue.ProjectCards.TotalCount + issue.ProjectItems.TotalCount
+	count := len(issue.ProjectCards.Nodes) + len(issue.ProjectItems.Nodes)
+
+	if count == 0 {
 		return ""
 	}
 
-	projectNames := make([]string, 0, len(issue.ProjectCards.Nodes))
+	projectNames := make([]string, 0, count)
+
+	for _, project := range issue.ProjectItems.Nodes {
+		colName := project.Status.Name
+		if colName == "" {
+			colName = "No Status"
+		}
+		projectNames = append(projectNames, fmt.Sprintf("%s (%s)", project.Project.Title, colName))
+	}
+
+	// TODO: Remove v1 classic project logic when completely deprecated
 	for _, project := range issue.ProjectCards.Nodes {
 		colName := project.Column.Name
 		if colName == "" {
@@ -324,7 +338,7 @@ func issueProjectList(issue api.Issue) string {
 	}
 
 	list := strings.Join(projectNames, ", ")
-	if issue.ProjectCards.TotalCount > len(issue.ProjectCards.Nodes) {
+	if totalCount > count {
 		list += ", …"
 	}
 	return list
