@@ -23,9 +23,10 @@ import (
 )
 
 type VerifyOptions struct {
-	TagName  string
-	BaseRepo ghrepo.Interface
-	Exporter cmdutil.Exporter
+	TagName     string
+	BaseRepo    ghrepo.Interface
+	Exporter    cmdutil.Exporter
+	TrustedRoot string
 }
 
 type VerifyConfig struct {
@@ -87,9 +88,10 @@ func NewCmdVerify(f *cmdutil.Factory, runF func(config *VerifyConfig) error) *co
 			attClient := api.NewLiveClient(httpClient, baseRepo.RepoHost(), att_io.NewHandler(io))
 
 			attVerifier := &shared.AttestationVerifier{
-				AttClient:  attClient,
-				HttpClient: httpClient,
-				IO:         io,
+				AttClient:   attClient,
+				HttpClient:  httpClient,
+				IO:          io,
+				TrustedRoot: opts.TrustedRoot,
 			}
 
 			config := &VerifyConfig{
@@ -107,6 +109,8 @@ func NewCmdVerify(f *cmdutil.Factory, runF func(config *VerifyConfig) error) *co
 		},
 	}
 	cmdutil.AddFormatFlags(cmd, &opts.Exporter)
+	cmd.Flags().StringVarP(&opts.TrustedRoot, "custom-trusted-root", "", "", "Path to a trusted_root.jsonl file; likely for offline verification.")
+	cmd.Flags().MarkHidden("custom-trusted-root")
 
 	return cmd
 }

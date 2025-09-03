@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 	"strings"
 	"testing"
 
@@ -164,7 +165,7 @@ func Test_RepoMetadata(t *testing.T) {
 	if err != nil {
 		t.Errorf("error resolving members: %v", err)
 	}
-	if !sliceEqual(memberIDs, expectedMemberIDs) {
+	if !slices.Equal(memberIDs, expectedMemberIDs) {
 		t.Errorf("expected members %v, got %v", expectedMemberIDs, memberIDs)
 	}
 
@@ -173,7 +174,7 @@ func Test_RepoMetadata(t *testing.T) {
 	if err != nil {
 		t.Errorf("error resolving teams: %v", err)
 	}
-	if !sliceEqual(teamIDs, expectedTeamIDs) {
+	if !slices.Equal(teamIDs, expectedTeamIDs) {
 		t.Errorf("expected teams %v, got %v", expectedTeamIDs, teamIDs)
 	}
 
@@ -182,7 +183,7 @@ func Test_RepoMetadata(t *testing.T) {
 	if err != nil {
 		t.Errorf("error resolving labels: %v", err)
 	}
-	if !sliceEqual(labelIDs, expectedLabelIDs) {
+	if !slices.Equal(labelIDs, expectedLabelIDs) {
 		t.Errorf("expected labels %v, got %v", expectedLabelIDs, labelIDs)
 	}
 
@@ -192,10 +193,10 @@ func Test_RepoMetadata(t *testing.T) {
 	if err != nil {
 		t.Errorf("error resolving projects: %v", err)
 	}
-	if !sliceEqual(projectIDs, expectedProjectIDs) {
+	if !slices.Equal(projectIDs, expectedProjectIDs) {
 		t.Errorf("expected projects %v, got %v", expectedProjectIDs, projectIDs)
 	}
-	if !sliceEqual(projectV2IDs, expectedProjectV2IDs) {
+	if !slices.Equal(projectV2IDs, expectedProjectV2IDs) {
 		t.Errorf("expected projectsV2 %v, got %v", expectedProjectV2IDs, projectV2IDs)
 	}
 
@@ -317,7 +318,7 @@ func Test_ProjectNamesToPaths(t *testing.T) {
 		}
 
 		expectedProjectPaths := []string{"ORG/1", "OWNER/REPO/2", "ORG/2", "OWNER/REPO/4", "MONALISA/5"}
-		if !sliceEqual(projectPaths, expectedProjectPaths) {
+		if !slices.Equal(projectPaths, expectedProjectPaths) {
 			t.Errorf("expected projects paths %v, got %v", expectedProjectPaths, projectPaths)
 		}
 	})
@@ -375,7 +376,7 @@ func Test_ProjectNamesToPaths(t *testing.T) {
 		}
 
 		expectedProjectPaths := []string{"ORG/2", "OWNER/REPO/4", "MONALISA/5"}
-		if !sliceEqual(projectPaths, expectedProjectPaths) {
+		if !slices.Equal(projectPaths, expectedProjectPaths) {
 			t.Errorf("expected projects paths %v, got %v", expectedProjectPaths, projectPaths)
 		}
 	})
@@ -487,20 +488,6 @@ func TestMembersToIDs(t *testing.T) {
 		_, err := repoMetadataResult.MembersToIDs([]string{"monalisa"})
 		require.Error(t, err)
 	})
-}
-
-func sliceEqual(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-
-	return true
 }
 
 func Test_RepoMilestones(t *testing.T) {
