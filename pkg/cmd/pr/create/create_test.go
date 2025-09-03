@@ -1655,7 +1655,7 @@ func Test_createRun(t *testing.T) {
 			expectedOut: "https://github.com/OWNER/REPO/pull/12\n",
 		},
 		{
-			name: "if reviewer contains any team, fetch teams",
+			name: "fetch org teams non-interactively if reviewer contains any team",
 			setup: func(opts *CreateOptions, t *testing.T) func() {
 				opts.TitleProvided = true
 				opts.BodyProvided = true
@@ -1718,7 +1718,7 @@ func Test_createRun(t *testing.T) {
 			expectedErrOut: "",
 		},
 		{
-			name: "if reviewer does NOT contain any team, do NOT fetch teams",
+			name: "do not fetch org teams non-interactively if reviewer does not contain any team",
 			setup: func(opts *CreateOptions, t *testing.T) func() {
 				opts.TitleProvided = true
 				opts.BodyProvided = true
@@ -1772,6 +1772,130 @@ func Test_createRun(t *testing.T) {
 			},
 			expectedOut:    "https://github.com/OWNER/REPO/pull/12\n",
 			expectedErrOut: "",
+		},
+		{
+			name: "fetch org teams interactively if reviewer metadata selected",
+			tty:  true,
+			setup: func(opts *CreateOptions, t *testing.T) func() {
+				// In order to test additional metadata, title and body cannot be provided here.
+				opts.HeadBranch = "feature"
+				return func() {}
+			},
+			cmdStubs: func(cs *run.CommandStubber) {
+				// Stub git commits for `initDefaultTitleBody` when initializing PR state.
+				cs.Register(
+					"git -c log.ShowSignature=false log --pretty=format:%H%x00%s%x00%b%x00 --cherry origin/master...feature",
+					0,
+					"3a9b48085046d156c5acce8f3b3a0532cd706a4a\u0000first commit of pr\u0000first commit description\u0000\n",
+				)
+				cs.Register(`git rev-parse --show-toplevel`, 0, "")
+			},
+			promptStubs: func(pm *prompter.PrompterMock) {
+				firstConfirmSubmission := true
+				pm.InputFunc = func(message, defaultValue string) (string, error) {
+					switch message {
+					case "Title (required)":
+						return "TITLE", nil
+					default:
+						return "", fmt.Errorf("unexpected input prompt: %s", message)
+					}
+				}
+				pm.MarkdownEditorFunc = func(message, defaultValue string, allowEmpty bool) (string, error) {
+					switch message {
+					case "Body":
+						return "BODY", nil
+					default:
+						return "", fmt.Errorf("unexpected markdown editor prompt: %s", message)
+					}
+				}
+				pm.MultiSelectFunc = func(message string, defaults []string, options []string) ([]int, error) {
+					switch message {
+					case "What would you like to add?":
+						return prompter.IndexesFor(options, "Reviewers")
+					case "Reviewers":
+						return prompter.IndexesFor(options, "MonaLisa (Mona Display Name)", "OWNER/core")
+					default:
+						return nil, fmt.Errorf("unexpected multi-select prompt: %s", message)
+					}
+				}
+				pm.SelectFunc = func(message, defaultValue string, options []string) (int, error) {
+					switch message {
+					case "Where should we push the 'feature' branch?":
+						return 0, nil
+					case "What's next?":
+						if firstConfirmSubmission {
+							firstConfirmSubmission = false
+							return prompter.IndexFor(options, "Add metadata")
+						}
+						return prompter.IndexFor(options, "Submit")
+					default:
+						return 0, fmt.Errorf("unexpected select prompt: %s", message)
+					}
+				}
+			},
+			httpStubs: func(reg *httpmock.Registry, t *testing.T) {
+				reg.Register(
+					httpmock.GraphQL(`query UserCurrent\b`),
+					httpmock.StringResponse(`{"data": {"viewer": {"login": "OWNER"} } }`))
+				reg.Register(
+					httpmock.GraphQL(`query PullRequestTemplates\b`),
+					httpmock.StringResponse(`{ "data": { "repository": { "pullRequestTemplates": [] } } }`),
+				)
+				reg.Register(
+					httpmock.GraphQL(`query RepositoryAssignableUsers\b`),
+					httpmock.StringResponse(`
+					{ "data": { "repository": { "assignableUsers": {
+						"nodes": [
+							{ "login": "hubot", "id": "HUBOTID", "name": "" },
+							{ "login": "MonaLisa", "id": "MONAID", "name": "Mona Display Name" }
+						],
+						"pageInfo": { "hasNextPage": false }
+					} } } }
+					`))
+				reg.Register(
+					httpmock.GraphQL(`query OrganizationTeamList\b`),
+					httpmock.StringResponse(`
+					{ "data": { "organization": { "teams": {
+						"nodes": [
+							{ "slug": "core", "id": "COREID" },
+							{ "slug": "robots", "id": "ROBOTID" }
+						],
+						"pageInfo": { "hasNextPage": false }
+					} } } }
+					`))
+				reg.Register(
+					httpmock.GraphQL(`mutation PullRequestCreate\b`),
+					httpmock.GraphQLMutation(`
+						{ "data": { "createPullRequest": { "pullRequest": {
+							"id": "NEWPULLID",
+							"URL": "https://github.com/OWNER/REPO/pull/12"
+						} } } }
+						`,
+						func(inputs map[string]interface{}) {
+							assert.Equal(t, "TITLE", inputs["title"])
+							assert.Equal(t, "BODY", inputs["body"])
+							if v, ok := inputs["assigneeIds"]; ok {
+								t.Errorf("did not expect assigneeIds: %v", v)
+							}
+							if v, ok := inputs["userIds"]; ok {
+								t.Errorf("did not expect userIds: %v", v)
+							}
+						}))
+				reg.Register(
+					httpmock.GraphQL(`mutation PullRequestCreateRequestReviews\b`),
+					httpmock.GraphQLMutation(`
+					{ "data": { "requestReviews": {
+						"clientMutationId": ""
+					} } }
+				`, func(inputs map[string]interface{}) {
+						assert.Equal(t, "NEWPULLID", inputs["pullRequestId"])
+						assert.Equal(t, []interface{}{"COREID"}, inputs["teamIds"])
+						assert.Equal(t, []interface{}{"MONAID"}, inputs["userIds"])
+						assert.Equal(t, true, inputs["union"])
+					}))
+			},
+			expectedOut:    "https://github.com/OWNER/REPO/pull/12\n",
+			expectedErrOut: "\nCreating pull request for feature into master in OWNER/REPO\n\n",
 		},
 	}
 	for _, tt := range tests {

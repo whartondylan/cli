@@ -48,6 +48,30 @@ func TestNewCmdDelete(t *testing.T) {
 			tty:    true,
 			output: DeleteOptions{},
 		},
+		{
+			name:   "yes flag ignored when no argument tty",
+			tty:    true,
+			input:  "--yes",
+			output: DeleteOptions{Confirmed: false}, // --yes should be ignored
+		},
+		{
+			name:    "yes flag error when no argument notty",
+			input:   "--yes",
+			wantErr: true,
+			errMsg:  "cannot non-interactively delete current repository. Please specify a repository or run interactively",
+		},
+		{
+			name:    "confirm flag error when no argument notty",
+			input:   "--confirm",
+			wantErr: true,
+			errMsg:  "cannot non-interactively delete current repository. Please specify a repository or run interactively",
+		},
+		{
+			name:   "confirm flag also ignored when no argument tty",
+			tty:    true,
+			input:  "--confirm",
+			output: DeleteOptions{Confirmed: false}, // --confirm should also be ignored
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
