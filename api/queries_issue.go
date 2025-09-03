@@ -166,7 +166,8 @@ type ProjectCards struct {
 }
 
 type ProjectItems struct {
-	Nodes []*ProjectV2Item
+	Nodes      []*ProjectV2Item
+	TotalCount int
 }
 
 type ProjectInfo struct {
